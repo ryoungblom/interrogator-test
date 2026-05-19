@@ -1,0 +1,6 @@
+openai-agents>=0.2
+openai>=1.40
+pandas>=2.0
+pydantic>=2.0
+streamlit>=1.30
+pytest>=8.0
