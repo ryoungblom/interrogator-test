@@ -24,6 +24,7 @@ from typing import Any, AsyncIterator
 
 from agents import ItemHelpers, Runner
 
+from configs import DEFAULT_MODEL
 from marketplace import Marketplace, QueryView
 
 from .context import EpisodeContext
@@ -41,6 +42,14 @@ DEFAULT_MAX_ATTEMPTS = 3
 #backoff before attempt N (attempt 1 waits nothing). base=2 -> 2s, 4s, 8s, ...
 RETRY_BACKOFF_BASE_SECONDS = 2.0
 
+#per-agent turn budget passed to Runner.run_streamed. The SDK default is 10,
+#which is too tight: list_products + get_reviews per product (4-6) + get_articles
+#+ final decision is already ~7-9 turns, and the NARRATION_BLOCK doubles that.
+#Hitting the budget surfaces as MaxTurnsExceeded and fails the episode.
+DEFAULT_MAX_TURNS_AGENT = 25
+#interrogator does its own verification on top of weighing two agents' claims.
+DEFAULT_MAX_TURNS_INTERROGATOR = 35
+
 
 def _is_likely_structured_output(text: str) -> bool:
     """True if text looks like a Recommendation/InterrogatorDecision JSON
@@ -57,10 +66,11 @@ async def _stream_agent_events(
     context: EpisodeContext,
     agent_label: str,
     max_attempts: int = DEFAULT_MAX_ATTEMPTS,
+    max_turns: int = DEFAULT_MAX_TURNS_AGENT,
 ) -> AsyncIterator[dict[str, Any]]:
     """Run an agent under streaming, yield unified events. Retries the whole
     run on any exception with exponential backoff; emits a `retry` event
-    between attempts."""
+    between attempts. max_turns is the SDK's per-run turn budget."""
     yield {"type": "agent_start", "agent": agent_label}
 
     result: Any = None
@@ -75,7 +85,8 @@ async def _stream_agent_events(
 
         try:
             result = Runner.run_streamed(
-                agent, input=user_input, context=context
+                agent, input=user_input, context=context,
+                max_turns=max_turns,
             )
         except Exception as e:
             last_error = f"setup failure: {type(e).__name__}: {e}"
@@ -270,7 +281,7 @@ def _format_interrogator_input(
 async def stream_solo(
     marketplace: Marketplace,
     query: QueryView,
-    model: str = "gpt-4o-mini",
+    model: str = DEFAULT_MODEL,
     persona: str = "neutral",
 ) -> AsyncIterator[dict[str, Any]]:
     """Single-agent condition."""
@@ -300,7 +311,7 @@ async def stream_solo(
 async def stream_competitive_no_verifier(
     marketplace: Marketplace,
     query: QueryView,
-    model: str = "gpt-4o-mini",
+    model: str = DEFAULT_MODEL,
     persona: str = "neutral",
     rng_seed: int | None = None,
 ) -> AsyncIterator[dict[str, Any]]:
@@ -354,7 +365,7 @@ async def stream_competitive_no_verifier(
 async def stream_competitive_with_verifier(
     marketplace: Marketplace,
     query: QueryView,
-    model: str = "gpt-4o-mini",
+    model: str = DEFAULT_MODEL,
     persona: str = "neutral",
     interrogator_persona: str = "honest",
     interrogator_model: str | None = None,
@@ -395,7 +406,8 @@ async def stream_competitive_with_verifier(
     interrogator_input = _format_interrogator_input(query, rec_a, rec_b)
     decision_dict = None
     async for evt in _stream_agent_events(
-        interrogator, interrogator_input, ctx_int, "Interrogator"
+        interrogator, interrogator_input, ctx_int, "Interrogator",
+        max_turns=DEFAULT_MAX_TURNS_INTERROGATOR,
     ):
         yield evt
         if evt.get("type") == "agent_finish":

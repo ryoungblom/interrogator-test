@@ -20,7 +20,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 def main() -> None:
     from experiment_agents import CONDITION_DISPATCHERS
-    from configs import list_personas
+    from configs import DEFAULT_MODEL, list_personas
 
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--data-dir", default="./marketplace_dataset")
@@ -29,7 +29,7 @@ def main() -> None:
     ap.add_argument("--persona", default="neutral", choices=list_personas())
     ap.add_argument("--interrogator-persona", default="honest",
                     choices=list_personas())
-    ap.add_argument("--model", default="gpt-4o-mini")
+    ap.add_argument("--model", default=DEFAULT_MODEL)
     args = ap.parse_args()
 
     if not os.environ.get("OPENAI_API_KEY"):

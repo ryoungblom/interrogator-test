@@ -6,6 +6,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from configs import DEFAULT_MODEL
 from marketplace import Marketplace, QueryView
 
 from .streaming import (
@@ -67,7 +68,7 @@ async def _drain_stream(
 async def run_solo(
     marketplace: Marketplace,
     query: QueryView,
-    model: str = "gpt-4o-mini",
+    model: str = DEFAULT_MODEL,
     persona: str = "neutral",
 ) -> EpisodeResult:
     return await _drain_stream(
@@ -79,7 +80,7 @@ async def run_solo(
 async def run_competitive_no_verifier(
     marketplace: Marketplace,
     query: QueryView,
-    model: str = "gpt-4o-mini",
+    model: str = DEFAULT_MODEL,
     persona: str = "neutral",
 ) -> EpisodeResult:
     return await _drain_stream(
@@ -93,7 +94,7 @@ async def run_competitive_no_verifier(
 async def run_competitive_with_verifier(
     marketplace: Marketplace,
     query: QueryView,
-    model: str = "gpt-4o-mini",
+    model: str = DEFAULT_MODEL,
     persona: str = "neutral",
     interrogator_persona: str = "honest",
     interrogator_model: str | None = None,

@@ -28,7 +28,7 @@ from experiment_agents import (
     stream_competitive_no_verifier,
     stream_competitive_with_verifier,
 )
-from configs import list_personas
+from configs import DEFAULT_MODEL, list_personas
 
 
 #one accent color per agent.
@@ -174,10 +174,13 @@ data_dir = st.sidebar.text_input(
     value="./marketplace_dataset",
     help="Directory containing the generated CSVs.",
 )
+_MODEL_OPTIONS = ["gpt-4o", "gpt-4o-mini", "gpt-5-mini", "gpt-5"]
+if DEFAULT_MODEL not in _MODEL_OPTIONS:
+    _MODEL_OPTIONS = [DEFAULT_MODEL] + _MODEL_OPTIONS
 model = st.sidebar.selectbox(
     "Model",
-    ["gpt-4o-mini", "gpt-4o", "gpt-5-mini", "gpt-5"],
-    index=0,
+    _MODEL_OPTIONS,
+    index=_MODEL_OPTIONS.index(DEFAULT_MODEL),
 )
 persona_options = list_personas()
 persona = st.sidebar.selectbox(

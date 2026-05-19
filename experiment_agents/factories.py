@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from agents import Agent
 
-from configs import get_persona
+from configs import DEFAULT_MODEL, get_persona
 
 from .context import EpisodeContext
 from .schemas import Recommendation, InterrogatorDecision
@@ -12,7 +12,7 @@ from .tools import RESEARCH_TOOLS
 
 
 def make_solo_agent(
-    model: str = "gpt-4o-mini",
+    model: str = DEFAULT_MODEL,
     persona: str = "neutral",
 ) -> Agent[EpisodeContext]:
     persona_cfg = get_persona(persona)
@@ -27,7 +27,7 @@ def make_solo_agent(
 
 def make_research_agent(
     name: str,
-    model: str = "gpt-4o-mini",
+    model: str = DEFAULT_MODEL,
     persona: str = "neutral",
 ) -> Agent[EpisodeContext]:
     persona_cfg = get_persona(persona)
@@ -41,7 +41,7 @@ def make_research_agent(
 
 
 def make_interrogator_agent(
-    model: str = "gpt-4o-mini",
+    model: str = DEFAULT_MODEL,
     persona: str = "honest",
 ) -> Agent[EpisodeContext]:
     persona_cfg = get_persona(persona)

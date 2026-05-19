@@ -1,4 +1,40 @@
-"""configs: persona/prompt registry. Edit prompts.py to change personas."""
-from .prompts import PERSONAS, get_persona, list_personas
+"""configs: persona/prompt registry + global defaults. Edit prompts.py."""
+from .prompts import (
+    DEFAULT_ALLOW_REPEAT,
+    DEFAULT_CONCURRENCY,
+    DEFAULT_CONDITION,
+    DEFAULT_CONSUMER_TYPE,
+    DEFAULT_DATA_DIR,
+    DEFAULT_INTERROGATOR_MODEL,
+    DEFAULT_INTERROGATOR_PERSONA,
+    DEFAULT_MODEL,
+    DEFAULT_N,
+    DEFAULT_ONLY_CONFLICTS,
+    DEFAULT_OUT,
+    DEFAULT_PERSONA,
+    DEFAULT_SEED,
+    DEFAULT_SPLIT,
+    PERSONAS,
+    get_persona,
+    list_personas,
+)
 
-__all__ = ["PERSONAS", "get_persona", "list_personas"]
+__all__ = [
+    "DEFAULT_ALLOW_REPEAT",
+    "DEFAULT_CONCURRENCY",
+    "DEFAULT_CONDITION",
+    "DEFAULT_CONSUMER_TYPE",
+    "DEFAULT_DATA_DIR",
+    "DEFAULT_INTERROGATOR_MODEL",
+    "DEFAULT_INTERROGATOR_PERSONA",
+    "DEFAULT_MODEL",
+    "DEFAULT_N",
+    "DEFAULT_ONLY_CONFLICTS",
+    "DEFAULT_OUT",
+    "DEFAULT_PERSONA",
+    "DEFAULT_SEED",
+    "DEFAULT_SPLIT",
+    "PERSONAS",
+    "get_persona",
+    "list_personas",
+]

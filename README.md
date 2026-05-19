@@ -1,4 +1,4 @@
-# Agent Marketplace
+# Agentic Competition (test)
 
 Research codebase for testing whether competition between AI recommendation
 agents (with a verifier) aligns their recommendations with consumer welfare,

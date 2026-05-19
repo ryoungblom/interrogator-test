@@ -22,7 +22,23 @@ from typing import Any
 from marketplace import Marketplace
 from metrics import score_episode
 from experiment_agents import CONDITION_DISPATCHERS
-from configs import list_personas
+from configs import (
+    DEFAULT_ALLOW_REPEAT,
+    DEFAULT_CONCURRENCY,
+    DEFAULT_CONDITION,
+    DEFAULT_CONSUMER_TYPE,
+    DEFAULT_DATA_DIR,
+    DEFAULT_INTERROGATOR_MODEL,
+    DEFAULT_INTERROGATOR_PERSONA,
+    DEFAULT_MODEL,
+    DEFAULT_N,
+    DEFAULT_ONLY_CONFLICTS,
+    DEFAULT_OUT,
+    DEFAULT_PERSONA,
+    DEFAULT_SEED,
+    DEFAULT_SPLIT,
+    list_personas,
+)
 
 from .report import print_run_summary
 
@@ -132,41 +148,53 @@ async def run_batch(
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[1])
-    ap.add_argument("--data-dir", default="./marketplace_dataset")
-    ap.add_argument("--condition", required=True,
+    ap.add_argument("--data-dir", default=DEFAULT_DATA_DIR)
+    ap.add_argument("--condition", default=DEFAULT_CONDITION,
                     choices=list(CONDITION_DISPATCHERS.keys()),
-                    help="Experimental condition.")
-    ap.add_argument("--persona", default="neutral",
+                    help=f"Experimental condition. Default: {DEFAULT_CONDITION}.")
+    ap.add_argument("--persona", default=DEFAULT_PERSONA,
                     choices=list_personas(),
-                    help="Persona for the research/solo agent(s). "
-                         "Default: neutral.")
-    ap.add_argument("--interrogator-persona", default="honest",
+                    help=f"Persona for the research/solo agent(s). "
+                         f"Default: {DEFAULT_PERSONA}.")
+    ap.add_argument("--interrogator-persona", default=DEFAULT_INTERROGATOR_PERSONA,
                     choices=list_personas(),
-                    help="Persona for the interrogator "
-                         "(competitive_with_verifier only). Default: honest.")
-    ap.add_argument("--model", default="gpt-4o-mini",
-                    help="OpenAI model for research/solo agent(s).")
-    ap.add_argument("--interrogator-model", default=None,
+                    help=f"Persona for the interrogator "
+                         f"(competitive_with_verifier only). "
+                         f"Default: {DEFAULT_INTERROGATOR_PERSONA}.")
+    ap.add_argument("--model", default=DEFAULT_MODEL,
+                    help=f"OpenAI model for research/solo agent(s). "
+                         f"Default: {DEFAULT_MODEL}.")
+    ap.add_argument("--interrogator-model", default=DEFAULT_INTERROGATOR_MODEL,
                     help="Optional separate model for the interrogator.")
-    ap.add_argument("--split", choices=["train", "eval", "all"], default="eval")
-    ap.add_argument("--n", type=int, default=20)
-    ap.add_argument("--only-conflicts", action="store_true",
-                    help="Restrict to queries where welfare-optimal "
-                         "differs from highest-fee.")
+    ap.add_argument("--split", choices=["train", "eval", "all"],
+                    default=DEFAULT_SPLIT,
+                    help=f"Default: {DEFAULT_SPLIT}.")
+    ap.add_argument("--n", type=int, default=DEFAULT_N,
+                    help=f"Number of episodes. Default: {DEFAULT_N}.")
+    ap.add_argument("--only-conflicts", action=argparse.BooleanOptionalAction,
+                    default=DEFAULT_ONLY_CONFLICTS,
+                    help=f"Restrict to queries where welfare-optimal differs "
+                         f"from highest-fee. Use --no-only-conflicts to "
+                         f"disable. Default: {DEFAULT_ONLY_CONFLICTS}.")
     ap.add_argument("--consumer-type",
                     choices=["balanced", "price_sensitive",
                              "quality_focused", "aesthetics_focused"],
-                    default=None,
-                    help="Restrict to one consumer type (e.g., "
-                         "price_sensitive for budget queries).")
-    ap.add_argument("--allow-repeat", action="store_true",
-                    help="Sample with replacement. Use when --n > unique "
-                         "matching queries. Statistically valid: each model "
-                         "call is independent (agent has no cross-episode "
-                         "memory).")
-    ap.add_argument("--concurrency", type=int, default=4)
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--out", default="./results.jsonl")
+                    default=DEFAULT_CONSUMER_TYPE,
+                    help=f"Restrict to one consumer type. Pass empty string "
+                         f"or omit to use the default. "
+                         f"Default: {DEFAULT_CONSUMER_TYPE}.")
+    ap.add_argument("--allow-repeat", action=argparse.BooleanOptionalAction,
+                    default=DEFAULT_ALLOW_REPEAT,
+                    help=f"Sample with replacement. Statistically valid: "
+                         f"each model call is independent (agent has no "
+                         f"cross-episode memory). Use --no-allow-repeat to "
+                         f"disable. Default: {DEFAULT_ALLOW_REPEAT}.")
+    ap.add_argument("--concurrency", type=int, default=DEFAULT_CONCURRENCY,
+                    help=f"Default: {DEFAULT_CONCURRENCY}.")
+    ap.add_argument("--seed", type=int, default=DEFAULT_SEED)
+    ap.add_argument("--out", default=DEFAULT_OUT,
+                    help=f"JSONL output path. Appends if it exists. "
+                         f"Default: {DEFAULT_OUT}.")
     args = ap.parse_args()
 
     marketplace = Marketplace(args.data_dir)
@@ -193,20 +221,21 @@ def main() -> None:
         qids = all_qids[: args.n]
 
     print(f"Running {len(qids)} episodes")
-    print(f"  condition: {args.condition}")
-    print(f"  persona:   {args.persona}")
+    print(f"  condition:       {args.condition}")
+    print(f"  persona:         {args.persona}")
     if args.condition == "competitive_with_verifier":
         print(f"  interrogator_persona: {args.interrogator_persona}")
-    print(f"  model:     {args.model}")
-    print(f"  split:     {args.split}")
-    if args.consumer_type is not None:
-        print(f"  consumer_type: {args.consumer_type}")
-    if args.only_conflicts:
-        print(f"  only_conflicts: True")
-    if args.allow_repeat:
-        print(f"  allow_repeat:   True")
+        if args.interrogator_model:
+            print(f"  interrogator_model:   {args.interrogator_model}")
+    print(f"  model:           {args.model}")
+    print(f"  split:           {args.split}")
+    print(f"  consumer_type:   {args.consumer_type}")
+    print(f"  only_conflicts:  {args.only_conflicts}")
+    print(f"  allow_repeat:    {args.allow_repeat}")
+    print(f"  concurrency:     {args.concurrency}")
+    print(f"  seed:            {args.seed}")
     print(f"  unique queries available after filtering: {len(all_qids)}")
-    print(f"  output:    {args.out}")
+    print(f"  output:          {args.out}")
     print()
 
     records = asyncio.run(run_batch(
