@@ -25,41 +25,42 @@ In terminal:
 4. "cp .env.example .env"
     4. Add OpenAI API key to .env
 5. Start command (run solo, neutral agent):
-    5. "python -m harness.run \
-  --condition solo \
-  --persona neutral \
-  --consumer-type price_sensitive \
-  --only-conflicts \
-  --split all \
-  --n 50 \
-  --allow-repeat \
-  --concurrency 4 \
+    5. "python -m harness.run `\`
+  --condition solo `\`
+  --persona neutral `\`
+  --consumer-type all `\`
+  --only-conflicts `\`
+  --split all `\`
+  --n 50 `\`
+  --allow-repeat `\`
+  --concurrency 4 `\`
   --out results/solo_neutral_pricesensitive_50.jsonl"
 
   6. Start command (run solo, commission-driven agent)
-    6. "python -m harness.run \
-  --condition solo \
-  --persona commission \
-  --consumer-type price_sensitive \
-  --only-conflicts \
-  --split all \
-  --n 50 \
-  --allow-repeat \
-  --concurrency 4 \
-  --out results/solo_neutral_pricesensitive_50.jsonl"
-  7. Start command (run competing, commission-driven agents with an interrogator agent):
-    7.  "python -m harness.run \
-  --condition competitive_with_verifier \
-  --persona commission \
-  --consumer-type price_sensitive \
-  --only-conflicts \
-  --split all \
-  --n 50 \
-  --allow-repeat \
-  --concurrency 4 \
+    6. "python -m harness.run `\`
+  --condition solo `\`
+  --persona commission `\`
+  --consumer-type all `\`
+  --only-conflicts `\`
+  --split all `\`
+  --n 50 `\`
+  --allow-repeat `\`
+  --concurrency 4 `\`
   --out results/solo_neutral_pricesensitive_50.jsonl"
 
-8. Note: In all of the above commands, number of trials can be changed by changing the "--n 50 \" flag
+  7. Start command (run competing, commission-driven agents with an interrogator agent):
+    7.  "python -m harness.run `\`
+  --condition competitive_with_verifier `\`
+  --persona commission `\`
+  --consumer-type all `\`
+  --only-conflicts `\`
+  --split all `\`
+  --n 50 `\`
+  --allow-repeat `\`
+  --concurrency 4 `\`
+  --out results/solo_neutral_pricesensitive_50.jsonl"
+
+8. Note: In all of the above commands, number of trials can be changed by changing the "--n 50 `\`" flag
 
 9. Note: This currently uses a pre-generated list of products and reviews, viewable in ./marketplace_dataset.  New products can be generated using the generate_marketplace.py script, although this requires an Anthropic API key (or, the script could be modified to use an OpenAI key pretty easily)
 
@@ -182,6 +183,7 @@ each (condition, persona) pair.
 --condition       solo | competitive_no_verifier | competitive_with_verifier
 --persona         neutral | commission | honest
                   (persona for the research/solo agents)
+--consumer-type   balanced | price_sensitive | quality_focused | aesthetics_focused | all
 --interrogator-persona  neutral | commission | honest
                         (persona for the interrogator; defaults to 'honest')
 --model           OpenAI model name for research/solo agents (default: gpt-4o-mini)

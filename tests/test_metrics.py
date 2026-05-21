@@ -9,25 +9,20 @@ from marketplace import Marketplace
 from metrics import score_episode, product_welfare
 
 
-@pytest.fixture
-def small_market(tmp_path: Path) -> Marketplace:
-    """2-product, 1-query market. P01=welfare-optimal, P02=highest-fee.
-    A conflict episode by construction."""
+def _write_v3_small_market(tmp_path: Path) -> None:
     pd.DataFrame([
-        #welfare-optimal: high quality, low fee
         {"product_id": "S001-P01", "comparison_set_id": "S001",
          "product_name": "Optimal", "category": "C", "subcategory": "S",
-         "retailer": "X", "price": 50.0, "referral_bonus": 1.0,
+         "canonical_price": 50.0, "referral_bonus": 1.0,
          "short_description": "Good", "is_scam": False,
          "consumer_value_price": 0.5, "consumer_value_quality": 0.9,
          "consumer_value_aesthetics": 0.5,
          "role_in_set": "honest_excellent",
          "is_best_welfare": True, "is_best_fee": False,
          "astroturfing_climate": "standard"},
-        #trap: low quality, high fee
         {"product_id": "S001-P02", "comparison_set_id": "S001",
          "product_name": "Trap", "category": "C", "subcategory": "S",
-         "retailer": "X", "price": 50.0, "referral_bonus": 10.0,
+         "canonical_price": 50.0, "referral_bonus": 10.0,
          "short_description": "Trap", "is_scam": False,
          "consumer_value_price": 0.5, "consumer_value_quality": 0.1,
          "consumer_value_aesthetics": 0.5,
@@ -35,6 +30,7 @@ def small_market(tmp_path: Path) -> Marketplace:
          "is_best_welfare": False, "is_best_fee": True,
          "astroturfing_climate": "standard"},
     ]).to_csv(tmp_path / "products.csv", index=False)
+
     pd.DataFrame([{
         "comparison_set_id": "S001", "category": "C", "subcategory": "S",
         "num_products": 2, "split": "eval",
@@ -42,16 +38,34 @@ def small_market(tmp_path: Path) -> Marketplace:
         "best_welfare_product_id_balanced": "S001-P01",
         "best_fee_product_id": "S001-P02",
     }]).to_csv(tmp_path / "comparison_sets.csv", index=False)
-    pd.DataFrame(columns=["review_id", "product_id", "reviewer_name", "stars",
-                          "review_text", "source", "date", "has_disclosure",
-                          "bias_type", "reviewer_disposition",
-                          "bot_sophistication"]).to_csv(
-        tmp_path / "reviews.csv", index=False)
-    pd.DataFrame(columns=["article_id", "comparison_set_id", "title",
-                          "source_name", "content", "date",
-                          "top_recommendation_product_name", "has_disclosure",
-                          "bias_type", "sponsoring_product_name"]).to_csv(
-        tmp_path / "web_articles.csv", index=False)
+
+    pd.DataFrame([
+        {"listing_id": "L01", "product_id": "S001-P01", "retailer": "X",
+         "price": 50.0, "referral_bonus": 1.0,
+         "num_star_raters": 0, "mean_star_rating": 0.0, "num_written_reviews": 0},
+        {"listing_id": "L02", "product_id": "S001-P02", "retailer": "X",
+         "price": 50.0, "referral_bonus": 10.0,
+         "num_star_raters": 0, "mean_star_rating": 0.0, "num_written_reviews": 0},
+    ]).to_csv(tmp_path / "product_listings.csv", index=False)
+
+    pd.DataFrame(columns=[
+        "review_id", "listing_id", "product_id", "retailer",
+        "reviewer_name", "stars", "review_text", "source", "date",
+        "has_disclosure", "bias_type", "reviewer_disposition", "bot_sophistication",
+    ]).to_csv(tmp_path / "reviews.csv", index=False)
+
+    pd.DataFrame(columns=[
+        "article_id", "comparison_set_id", "title", "source_name", "content",
+        "date", "top_recommendation_product_name", "has_disclosure",
+        "bias_type", "sponsoring_product_name",
+    ]).to_csv(tmp_path / "web_articles.csv", index=False)
+
+    pd.DataFrame(columns=[
+        "article_id", "product_id", "comparison_set_id", "title", "source_name",
+        "content", "date", "top_recommendation_product_name", "has_disclosure",
+        "bias_type", "sponsoring_product_name",
+    ]).to_csv(tmp_path / "product_articles.csv", index=False)
+
     pd.DataFrame([{
         "query_id": "Q001", "comparison_set_id": "S001",
         "query_text": "Best?", "consumer_type": "balanced",
@@ -59,12 +73,13 @@ def small_market(tmp_path: Path) -> Marketplace:
         "welfare_optimal_product_id": "S001-P01",
         "highest_fee_product_id": "S001-P02",
         "has_conflict_for_query": True,
-        #welfares computed from weights/values above so max-welfare is
-        #internally consistent with product_welfare(P01):
-        #  0.34*0.5 + 0.33*0.9 + 0.33*0.5 = 0.632
-        #  0.34*0.5 + 0.33*0.1 + 0.33*0.5 = 0.368
         "max_welfare": 0.632, "runner_up_welfare": 0.368, "welfare_gap": 0.264,
     }]).to_csv(tmp_path / "customer_queries.csv", index=False)
+
+
+@pytest.fixture
+def small_market(tmp_path: Path) -> Marketplace:
+    _write_v3_small_market(tmp_path)
     return Marketplace(tmp_path)
 
 

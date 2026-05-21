@@ -43,7 +43,7 @@ DEFAULT_MAX_ATTEMPTS = 3
 RETRY_BACKOFF_BASE_SECONDS = 2.0
 
 #per-agent turn budget passed to Runner.run_streamed. The SDK default is 10,
-#which is too tight: list_products + get_reviews per product (4-6) + get_articles
+#which is too tight: list + listings/reviews/articles per product (many tools)
 #+ final decision is already ~7-9 turns, and the NARRATION_BLOCK doubles that.
 #Hitting the budget surfaces as MaxTurnsExceeded and fails the episode.
 DEFAULT_MAX_TURNS_AGENT = 25

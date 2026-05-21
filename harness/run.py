@@ -177,11 +177,11 @@ def main() -> None:
                          f"from highest-fee. Use --no-only-conflicts to "
                          f"disable. Default: {DEFAULT_ONLY_CONFLICTS}.")
     ap.add_argument("--consumer-type",
-                    choices=["balanced", "price_sensitive",
+                    choices=["all", "balanced", "price_sensitive",
                              "quality_focused", "aesthetics_focused"],
                     default=DEFAULT_CONSUMER_TYPE,
-                    help=f"Restrict to one consumer type. Pass empty string "
-                         f"or omit to use the default. "
+                    help=f"'all' = no filter (random query from full pool). "
+                         f"Otherwise restrict to one consumer type. "
                          f"Default: {DEFAULT_CONSUMER_TYPE}.")
     ap.add_argument("--allow-repeat", action=argparse.BooleanOptionalAction,
                     default=DEFAULT_ALLOW_REPEAT,
@@ -199,10 +199,13 @@ def main() -> None:
 
     marketplace = Marketplace(args.data_dir)
     split = None if args.split == "all" else args.split
+    consumer_type = (
+        None if args.consumer_type == "all" else args.consumer_type
+    )
     all_qids = marketplace.list_query_ids(
         split=split,
         only_conflicts=args.only_conflicts,
-        consumer_type=args.consumer_type,
+        consumer_type=consumer_type,
     )
     if not all_qids:
         raise SystemExit("No queries match the requested filters.")
