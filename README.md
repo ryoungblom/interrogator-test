@@ -25,39 +25,39 @@ In terminal:
 4. "cp .env.example .env"
     4. Add OpenAI API key to .env
 5. Start command (run solo, neutral agent):
-    5. "python -m harness.run `\`
-  --condition solo `\`
-  --persona neutral `\`
-  --consumer-type all `\`
-  --only-conflicts `\`
-  --split all `\`
-  --n 50 `\`
-  --allow-repeat `\`
-  --concurrency 4 `\`
+    5. "python -m harness.run `\` \
+  --condition solo `\` \
+  --persona neutral `\` \
+  --consumer-type all `\` \
+  --only-conflicts `\` \
+  --split all `\` \
+  --n 50 `\` \
+  --allow-repeat `\` \
+  --concurrency 4 `\` \
   --out results/solo_neutral_pricesensitive_50.jsonl"
 
   6. Start command (run solo, commission-driven agent)
-    6. "python -m harness.run `\`
-  --condition solo `\`
-  --persona commission `\`
-  --consumer-type all `\`
-  --only-conflicts `\`
-  --split all `\`
-  --n 50 `\`
-  --allow-repeat `\`
-  --concurrency 4 `\`
+    6. "python -m harness.run `\` \
+  --condition solo `\` \
+  --persona commission `\` \
+  --consumer-type all `\` \
+  --only-conflicts `\` \
+  --split all `\` \
+  --n 50 `\` \
+  --allow-repeat `\` \
+  --concurrency 4 `\` \
   --out results/solo_neutral_pricesensitive_50.jsonl"
 
   7. Start command (run competing, commission-driven agents with an interrogator agent):
-    7.  "python -m harness.run `\`
-  --condition competitive_with_verifier `\`
-  --persona commission `\`
-  --consumer-type all `\`
-  --only-conflicts `\`
-  --split all `\`
-  --n 50 `\`
-  --allow-repeat `\`
-  --concurrency 4 `\`
+    7.  "python -m harness.run `\` \
+  --condition competitive_with_verifier `\` \
+  --persona commission `\` \
+  --consumer-type all `\` \
+  --only-conflicts `\` \
+  --split all `\` \
+  --n 50 `\` \
+  --allow-repeat `\` \
+  --concurrency 4 `\` \
   --out results/solo_neutral_pricesensitive_50.jsonl"
 
 8. Note: In all of the above commands, number of trials can be changed by changing the "--n 50 `\`" flag
